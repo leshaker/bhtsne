@@ -77,19 +77,20 @@ function mappedX = fast_tsne(X, no_dims, initial_dims, perplexity, theta, alg, m
     
     tsne_path = which('fast_tsne');
     tsne_path = fileparts(tsne_path);
+    bin_name = ['./bh_tsne_' mexext];
     
     % Compile t-SNE C code
-    if(~exist(fullfile(tsne_path,'./bh_tsne'),'file') && isunix)
+    if(~exist(fullfile(tsne_path,bin_name),'file') && isunix)
         system(sprintf('g++ %s %s -o %s -O2',...
             fullfile(tsne_path,'./sptree.cpp'),...
             fullfile(tsne_path,'./tsne.cpp'),...
-            fullfile(tsne_path,'./bh_tsne')));
+            fullfile(tsne_path,bin_name)));
     end
 
     % Run the fast diffusion SNE implementation
     write_data(X, no_dims, theta, perplexity, max_iter);
     tic
-    [flag, cmdout] = system(fullfile(tsne_path,'./bh_tsne'));
+    [flag, cmdout] = system(fullfile(tsne_path,bin_name));
     if(flag~=0)
         error(cmdout);
     end
